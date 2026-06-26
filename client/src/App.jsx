@@ -4,6 +4,8 @@ function App() {
   const [message, setMessage] = useState('')
   const [clickCount, setClickCount] = useState(0);
   const [items, setItems] = useState([]);
+  const [checked, setChecked] = useState({});
+  const [inputText, setInputText] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -36,6 +38,7 @@ function App() {
     const entries = Object.fromEntries(data.entries());
     const itemInput = entries["itemInput"];
     setItems([...items, itemInput]);
+    setInputText("");
   }
 
   function handleReset(e) {
@@ -45,14 +48,24 @@ function App() {
 
   function ShoppingListItems() {
     const listItems = items.map((item, ix) => {
-      return <li key={ix}>{item}<input type="checkbox" key={ix}></input></li>;
+      function handleCheck(e) {
+        if (e.target.checked) {
+          setChecked({ ...checked, [ix] : true });
+          console.log(item + " checked");
+        } else {
+          const { [ix] : _, ...newChecked } = checked;
+          setChecked(newChecked);
+          console.log(item + " unchecked");
+        }
+      }
+      return <li key={ix} style={{textDecoration: checked[ix] ? "line-through" : "normal"}}>{item}<input type="checkbox" key={ix} onChange={handleCheck} checked={checked[ix]}></input></li>;
     });
 
     return (<ol>{listItems}</ol>);
   }
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div style={{ textAlign: 'left', margin: '30px' }}>
       <h1>React + Express Integration</h1>
       <p>{message ? message : "Loading data from backend..."}</p>
       <Button clicker="Alice" />
@@ -61,13 +74,18 @@ function App() {
       <h2>Buttons clicked {clickCount} times.</h2>
       <form method="post" onSubmit={handleSubmit} onReset={handleReset}>
         <label>
-          Input: <input name="itemInput"></input>
+          Input:
+          <input 
+            type="text" 
+            name="itemInput" 
+            value={inputText} 
+            onChange={(e) => setInputText(e.target.value)}>
+          </input>
         </label>
         <button type="submit">Submit</button>
         <button type="reset">Clear All</button>
       </form>
       <ShoppingListItems />
-      <h2>footer</h2>
     </div>
   )
 }
