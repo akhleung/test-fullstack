@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 function App() {
   const [message, setMessage] = useState('')
   const [clickCount, setClickCount] = useState(0);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -28,6 +29,28 @@ function App() {
     return <button onClick={handler}>Button for {clicker}</button>
   }
 
+  function handleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    const entries = Object.fromEntries(data.entries());
+    const itemInput = entries["itemInput"];
+    setItems([...items, itemInput]);
+  }
+
+  function handleReset(e) {
+    e.preventDefault();
+    setItems([]);
+  }
+
+  function ShoppingListItems() {
+    const listItems = items.map((item, ix) => {
+      return <li key={ix}>{item}<input type="checkbox" key={ix}></input></li>;
+    });
+
+    return (<ol>{listItems}</ol>);
+  }
+
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>React + Express Integration</h1>
@@ -36,6 +59,15 @@ function App() {
       <Button clicker="Bob" />
       <Button clicker="Chuck" />
       <h2>Buttons clicked {clickCount} times.</h2>
+      <form method="post" onSubmit={handleSubmit} onReset={handleReset}>
+        <label>
+          Input: <input name="itemInput"></input>
+        </label>
+        <button type="submit">Submit</button>
+        <button type="reset">Clear All</button>
+      </form>
+      <ShoppingListItems />
+      <h2>footer</h2>
     </div>
   )
 }
